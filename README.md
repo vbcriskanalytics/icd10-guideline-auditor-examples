@@ -1,36 +1,65 @@
-# icd10-hcc-mapping-2026 — example crosswalk QA
+# icd10-code-lookup-examples
 
-A small, public example repo showing how to QA an ICD-10 → HCC crosswalk after a model-year change. Repo: `github-repos/icd10-guideline-auditor-examples`. All data here is **synthetic and illustrative** — no PHI.
+Generic, runnable Python sample code for the **ICD-10 Code Lookup API** — search the full
+**ICD-10-CM** Alphabetic Index, Tabular List, Table of Drugs & Chemicals, Table of
+Neoplasms, External Causes Index, and **ICD-10-PCS** procedure codes from one REST API.
+Handy for **medical-coding lookups**, code validators, EHR autocomplete, and superbill tools.
 
-## What this demonstrates
+Built and maintained by [VBC Risk Analytics](https://www.vbcriskanalytics.com/icd10-rest-api-medical-coding-lookup).
 
-The 2026 updates under CMS-HCC V28 remapped several condition families. This repo shows a minimal pattern for catching the drift:
+## Get an API key
 
-1. Load last year's crosswalk and this year's.
-2. Diff per ICD-10 code: did the mapped HCC change, disappear, or stay?
-3. Flag any code where your claimed HCC no longer agrees with current guidelines.
+Sign up on the **[ICD-10 Code Lookup API](https://www.vbcriskanalytics.com/icd10-rest-api-medical-coding-lookup)** product page.
+Interactive docs (Swagger UI): https://restapi.npidataservices.com/icd10
 
-```python
-# synthetic example
-prior = load_crosswalk("2025.csv")
-current = load_crosswalk("2026.csv")
+## Quickstart
 
-
-for code, hcc in prior.items():
-    new = current.get(code)
-    if new != hcc:
-        print(f"{code}: {hcc} -> {new or 'UNMAPPED'}")
+```bash
+pip install -r requirements.txt
+export ICD10_API_KEY=your_api_key_here
+python examples.py
 ```
 
-## Why validate against guidelines, not just files
+If `ICD10_API_KEY` is not set, the script prints a friendly message pointing to the sign-up URL.
 
-A static lookup table goes stale the moment guidelines update. The robust approach is to check codes against the current [ICD-10 to HCC mapping and compliance validation](https://www.vbcriskanalytics.com/icd10-guideline-auditor-api-compliance-validation?utm_source=github&utm_medium=referral&utm_campaign=vbc-web-lb-2026&utm_content=p004) logic rather than trusting an inherited spreadsheet.
+## Contract
 
-For the narrative breakdown of what specifically changed for 2026, see the companion article: [ICD-10 to HCC Mapping Updates 2026](https://www.vbcriskanalytics.com/blogs/icd-10-coding-updates-2026?utm_source=github&utm_medium=referral&utm_campaign=vbc-web-lb-2026&utm_content=p004).
+- **Base URL:** `https://restapi.npidataservices.com/icd10/api/v1`
+- **Auth:** custom header `ApiKey: <key>` — **not** `Authorization: Bearer`.
+- **Format:** `GET` with query-string params; JSON responses.
+- **OpenAPI spec:** https://restapi.npidataservices.com/icd10/api_spec.yaml
 
-## Contributing
+| Endpoint | Params | Purpose |
+|---|---|---|
+| `GET /getICD10Code` | `query`, `index` | Iterative code search |
+| `GET /getICD10Index` | `letter`, `main_term` | Alphabetic Index |
+| `GET /getICD10EIndex` | `letter`, `main_term` | External Causes Index |
+| `GET /getICD10Details` | `chapter`, `section_range`, `diag_code` | Tabular detail |
+| `GET /getICD10Drug` | `letter` | Table of Drugs & Chemicals |
+| `GET /getICD10Neo` | `letter` | Table of Neoplasms |
+| `GET /getICD10PCSTabular` | `code` | ICD-10-PCS tabular |
+| `GET /getICD10SiteMap` | — | UI sitemap |
 
-PRs welcome for additional synthetic test fixtures. Do not submit real patient data under any circumstances.
+### Example request
 
+```bash
+curl 'https://restapi.npidataservices.com/icd10/api/v1/getICD10Code?query=diabetes' \
+  -H 'accept: application/json' \
+  -H "ApiKey: $ICD10_API_KEY"
+```
 
-*VBC Risk Analytics. Educational only — not coding, billing, or clinical advice; verify against the current CMS Rate Announcement. Synthetic data only.*
+A missing/invalid key returns
+`{"errors":[{"message":"Authorization error, invalid ApiKey", ...}],"status":401}`.
+
+> This repository ships **generic illustrative sample code**. Replace the placeholder key
+> and adapt response handling to the live payload shapes for each endpoint.
+
+## Security
+
+Never commit a real key. The client reads `ICD10_API_KEY` from the environment; `.env` is
+git-ignored — only `.env.example` (a placeholder) is committed.
+
+---
+Maintained by VBC Risk Analytics. Disclosure: we build the ICD-10 Code Lookup API.
+Educational only — not coding, billing, or clinical advice; verify against the official
+ICD-10-CM/PCS files and the [API docs](https://restapi.npidataservices.com/icd10).
