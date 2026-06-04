@@ -54,11 +54,6 @@ A missing/invalid key returns
 > This repository ships **generic illustrative sample code**. Replace the placeholder key
 > and adapt response handling to the live payload shapes for each endpoint.
 
-## Security
-
-Never commit a real key. The client reads `ICD10_API_KEY` from the environment; `.env` is
-git-ignored — only `.env.example` (a placeholder) is committed.
-
 ---
 Maintained by VBC Risk Analytics. Disclosure: we build the ICD-10 Code Lookup API.
 Educational only — not coding, billing, or clinical advice; verify against the official
