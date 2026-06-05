@@ -9,7 +9,8 @@ Built and maintained by [VBC Risk Analytics](https://www.vbcriskanalytics.com/ic
 
 ## Get an API key
 
-Sign up on the **[ICD-10 Code Lookup API](https://www.vbcriskanalytics.com/icd10-rest-api-medical-coding-lookup)** product page./n
+Sign up on the **[ICD-10 Code Lookup API](https://www.vbcriskanalytics.com/icd10-rest-api-medical-coding-lookup)** product page.
+
 Interactive docs (Swagger UI): https://restapi.npidataservices.com/icd10
 
 ## Quickstart
